@@ -34,6 +34,9 @@ Output:
 ### Example config
 
 ```yaml
+api_settings:
+  listen_address: "0.0.0.0:10000"
+
 node_config:
   # Root directory for node DB. Default: "./db"
   db_path: "./db"
