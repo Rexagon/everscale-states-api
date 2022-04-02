@@ -90,6 +90,16 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "base64"
+version = "0.9.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "489d6c0ed21b11d038c31b6ceccca973e65d73ba3bd8ecb9a2babf5546164643"
+dependencies = [
+ "byteorder",
+ "safemem",
+]
+
+[[package]]
+name = "base64"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
@@ -629,12 +639,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "everscale-states-rpc"
+name = "everscale-states-api"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "argh",
  "async-trait",
+ "base64 0.9.3",
  "config",
  "futures",
  "hex",
@@ -855,7 +866,7 @@ version = "0.1.0"
 source = "git+https://github.com/broxus/ton-indexer.git#406a381b62ec1eac66d2a488d9022b6d5031d9fc"
 dependencies = [
  "anyhow",
- "base64",
+ "base64 0.13.0",
  "serde",
  "serde_json",
  "ton_api",
@@ -902,7 +913,7 @@ version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4cff78e5788be1e0ab65b04d306b2ed5092c815ec97ec70f4ebd5aee158aa55d"
 dependencies = [
- "base64",
+ "base64 0.13.0",
  "bitflags",
  "bytes",
  "headers-core",
@@ -1878,7 +1889,7 @@ version = "0.11.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "46a1f7aa4f35e5e8b4160449f51afc758f0ce6454315a9fa7d0d113e958c41eb"
 dependencies = [
- "base64",
+ "base64 0.13.0",
  "bytes",
  "encoding_rs",
  "futures-core",
@@ -1932,7 +1943,7 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b861ecaade43ac97886a512b360d01d66be9f41f3c61088b42cedf92e03d678"
 dependencies = [
- "base64",
+ "base64 0.13.0",
  "bitflags",
  "serde",
 ]
@@ -2325,7 +2336,7 @@ dependencies = [
  "aes",
  "anyhow",
  "async-trait",
- "base64",
+ "base64 0.13.0",
  "crossbeam-queue",
  "curve25519-dalek-ng",
  "dashmap",
@@ -2483,7 +2494,7 @@ source = "git+https://github.com/broxus/ton-indexer.git#406a381b62ec1eac66d2a488
 dependencies = [
  "anyhow",
  "async-trait",
- "base64",
+ "base64 0.13.0",
  "bincode",
  "bytes",
  "countme",
@@ -2560,7 +2571,7 @@ version = "1.7.14"
 source = "git+https://github.com/broxus/ton-labs-block.git#a21dc5ed417d25db511c7db3173baef2279bda15"
 dependencies = [
  "anyhow",
- "base64",
+ "base64 0.13.0",
  "clear_on_drop",
  "crc",
  "ed25519",
@@ -2596,7 +2607,7 @@ version = "1.10.2"
 source = "git+https://github.com/broxus/ton-labs-types.git#69cae5221317af7ea6f26016a3bb61e732150a3d"
 dependencies = [
  "anyhow",
- "base64",
+ "base64 0.13.0",
  "countme",
  "crc",
  "hex",
@@ -2726,7 +2737,7 @@ version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a0b2d8558abd2e276b0a8df5c05a2ec762609344191e5fd23e292c910e9165b5"
 dependencies = [
- "base64",
+ "base64 0.13.0",
  "byteorder",
  "bytes",
  "http",

@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use anyhow::{Context, Result};
 
-use self::ton_subscriber::*;
-use crate::config::*;
+pub use self::ton_subscriber::*;
+use crate::config::NodeConfig;
 
 mod ton_subscriber;
 
@@ -13,11 +13,10 @@ pub struct Engine {
 }
 
 impl Engine {
-    pub async fn new(config: AppConfig, global_config: ton_indexer::GlobalConfig) -> Result<Self> {
+    pub async fn new(config: NodeConfig, global_config: ton_indexer::GlobalConfig) -> Result<Self> {
         let ton_subscriber = TonSubscriber::new();
         let ton_engine = ton_indexer::Engine::new(
             config
-                .node_settings
                 .build_indexer_config()
                 .await
                 .context("Failed to build node config")?,
@@ -36,5 +35,9 @@ impl Engine {
     pub async fn start(&self) -> Result<()> {
         self.ton_engine.start().await?;
         Ok(())
+    }
+
+    pub fn subscriber(&self) -> &Arc<TonSubscriber> {
+        &self.ton_subscriber
     }
 }

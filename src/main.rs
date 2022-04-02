@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
-use everscale_states_rpc::config::*;
-use everscale_states_rpc::engine::*;
+use everscale_states_api::api;
+use everscale_states_api::config::*;
+use everscale_states_api::engine::*;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -44,12 +45,13 @@ impl CmdRun {
         let global_config = ton_indexer::GlobalConfig::from_file(&self.global_config)
             .context("Failed to open global config")?;
 
-        let engine = Engine::new(config, global_config)
+        let engine = Engine::new(config.node_settings, global_config)
             .await
             .context("Failed to create engine")?;
         engine.start().await.context("Failed to start engine")?;
 
-        futures::future::pending().await
+        api::serve(engine.subscriber().clone(), config.api_settings).await;
+        Ok(())
     }
 }
 

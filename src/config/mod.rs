@@ -8,6 +8,9 @@ use serde::{Deserialize, Serialize};
 /// Main application config
 #[derive(Serialize, Deserialize)]
 pub struct AppConfig {
+    /// API settings
+    pub api_settings: ApiConfig,
+
     /// TON node settings
     #[serde(default)]
     pub node_settings: NodeConfig,
@@ -16,6 +19,13 @@ pub struct AppConfig {
     /// See [docs](https://docs.rs/log4rs/1.0.0/log4rs/) for more details
     #[serde(default = "default_logger_settings")]
     pub logger_settings: serde_yaml::Value,
+}
+
+/// API settings
+#[derive(Serialize, Deserialize)]
+pub struct ApiConfig {
+    /// Listen address
+    pub listen_address: SocketAddrV4,
 }
 
 /// TON node settings
@@ -159,7 +169,7 @@ fn default_logger_settings() -> serde_yaml::Value {
       appenders:
         - stdout
     loggers:
-      everscale_states_rpc:
+      everscale_states_api:
         level: info
         appenders:
           - stdout

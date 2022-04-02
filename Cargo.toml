@@ -1,5 +1,5 @@
 [package]
-name = "everscale-states-rpc"
+name = "everscale-states-api"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,6 +7,7 @@ edition = "2021"
 anyhow = "1.0"
 argh = "0.1"
 async-trait = "0.1"
+base64 = "0.9"
 config = "0.12.0"
 futures = "0.3.21"
 hex = "0.4"
