@@ -4,7 +4,7 @@ use anyhow::Result;
 use parking_lot::RwLock;
 use serde::Serialize;
 use tiny_adnl::utils::*;
-use ton_block::{HashmapAugType, Serializable};
+use ton_block::HashmapAugType;
 use ton_indexer::utils::*;
 use ton_indexer::*;
 
@@ -31,14 +31,14 @@ impl TonSubscriber {
 
         if is_masterchain {
             let cache = self.masterchain_accounts_cache.read();
-            ExistingContract::from_shard_account_opt(&cache.get(&account)?)
+            ExistingContract::from_shard_account_opt(cache.get(&account)?)
         } else {
             let cache = self.shard_accounts_cache.read();
             for (shard_ident, shard_accounts) in cache.iter() {
                 if !contains_account(shard_ident, &account) {
                     continue;
                 }
-                return ExistingContract::from_shard_account_opt(&shard_accounts.get(&account)?);
+                return ExistingContract::from_shard_account_opt(shard_accounts.get(&account)?);
             }
             Ok(None)
         }
@@ -46,15 +46,16 @@ impl TonSubscriber {
 
     async fn handle_block(
         &self,
-        block_stuff: &BlockStuff,
-        shard_state: &ShardStateStuff,
+        block_id: &ton_block::BlockIdExt,
+        block: &ton_block::Block,
+        shard_state: &ton_block::ShardStateUnsplit,
     ) -> Result<()> {
-        let shard_accounts = shard_state.state().read_accounts()?;
+        let shard_accounts = shard_state.read_accounts()?;
 
-        if block_stuff.id().is_masterchain() {
+        if block_id.is_masterchain() {
             *self.masterchain_accounts_cache.write() = shard_accounts;
         } else {
-            let block_info = &block_stuff.block().read_info()?;
+            let block_info = &block.read_info()?;
 
             let mut cache = self.shard_accounts_cache.write();
 
@@ -102,14 +103,12 @@ impl TonSubscriber {
 
 #[async_trait::async_trait]
 impl ton_indexer::Subscriber for TonSubscriber {
-    async fn process_block(
-        &self,
-        _: BriefBlockMeta,
-        block: &BlockStuff,
-        _: Option<&BlockProofStuff>,
-        shards_state: &ShardStateStuff,
-    ) -> Result<()> {
-        self.handle_block(block, shards_state).await
+    async fn process_block(&self, ctx: ProcessBlockContext<'_>) -> Result<()> {
+        if let Some(shard_state) = ctx.shard_state() {
+            self.handle_block(ctx.id(), ctx.block(), shard_state).await
+        } else {
+            Ok(())
+        }
     }
 }
 
@@ -122,24 +121,18 @@ pub struct ExistingContract {
 
 impl ExistingContract {
     fn from_shard_account_opt(
-        shard_account: &Option<ton_block::ShardAccount>,
+        shard_account: Option<ton_block::ShardAccount>,
     ) -> Result<Option<Self>> {
-        match shard_account {
-            Some(shard_account) => Self::from_shard_account(shard_account),
-            None => Ok(None),
-        }
+        shard_account.map(Self::from_shard_account).transpose()
     }
 
-    fn from_shard_account(shard_account: &ton_block::ShardAccount) -> Result<Option<Self>> {
-        Ok(match shard_account.read_account()? {
-            ton_block::Account::Account(account) => Some(Self {
-                account: base64::encode(&ton_types::serialize_toc(&account.serialize()?)?),
-                last_transaction_id: LastTransactionId {
-                    lt: shard_account.last_trans_lt().to_string(),
-                    hash: shard_account.last_trans_hash().as_hex_string(),
-                },
-            }),
-            ton_block::Account::AccountNone => None,
+    fn from_shard_account(shard_account: ton_block::ShardAccount) -> Result<Self> {
+        Ok(Self {
+            account: base64::encode(&ton_types::serialize_toc(&shard_account.account_cell())?),
+            last_transaction_id: LastTransactionId {
+                lt: shard_account.last_trans_lt().to_string(),
+                hash: shard_account.last_trans_hash().as_hex_string(),
+            },
         })
     }
 }
